@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="  
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- Realm实现 -->
+	<bean id="userRealm" class="pers.abaneo.test.controller.shiro.MyRealm">
+	</bean>
+
+	<!-- 安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="userRealm" />
+	</bean>
+
+	<!-- Shiro的Web过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/" />
+		<property name="unauthorizedUrl" value="/" />
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- admin角色访问 -->
+				/admin/** = roles[admin]
+				
+				<!-- shoper角色访问 -->
+				/shopper/* = roles[shopper]
+				
+				<!-- 同时拥有admin和shoper权限才可以访问 -->
+				/testAnd/** = roles[admin,shopper]
+				
+				<!-- admin或者shoper权限访问 -->
+				/testOr/** = roles[shopper]
+				/testOr/** = roles[admin]
+				
+				<!-- 登录注销开放 -->
+				/user/** = anon
+				
+				/** = authc
+			</value>
+		</property>
+	</bean>
+</beans>
